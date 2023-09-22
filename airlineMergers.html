@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+        <meta charset="UTF-8">
+            <title>Airline Mergers Visualization</title>
+            <script src="https://d3js.org/d3.v7.min.js"></script>
+            <style>
+                .line {
+                    fill: none;
+                    stroke-width: 2px;
+                }
+                
+                .circle {
+                }
+                
+                .label {
+                    font: 10px sans-serif;
+                }
+                
+                .tooltip {
+                    position: absolute;
+                    text-align: center;
+                    padding: 5px;
+                    font: 12px sans-serif;
+                    background: white;
+                    border: 1px solid black;
+                    pointer-events: none;
+                    opacity: 0;
+                    transition: 0.2s opacity;
+                }
+            </style>
+    </head>
+    
+    <body>
+        
+        <svg width="900" height="2000"></svg>
+        <div class="tooltip"></div>
+        
+        <script>
+            const mergers = [{
+                year: 1961,
+                source: "Delta",
+                target: ["C&S"]
+            },
+                             {
+                year: 1972,
+                source: "Delta",
+                target: ["Northeast"]
+            },
+                             {
+                year: 1986,
+                source: "Northwest",
+                target: ["Republic"]
+            },
+                             {
+                year: 1987,
+                source: "Delta",
+                target: ["Western"]
+            },
+                             {
+                year: 1989,
+                source: "US Airways",
+                target: ["Piedmont", "PSA"]
+            },
+                             {
+                year: 2005,
+                source: "US Airways",
+                target: ["America West"]
+            },
+                             {
+                year: 2008,
+                source: "Delta",
+                target: ["Northwest"]
+            },
+                             {
+                year: 2010,
+                source: "United",
+                target: ["Continental"]
+            },
+                             {
+                year: 2013,
+                source: "American",
+                target: ["US Airways"],
+                note: "US Airways management team retained most leadership positions."
+            },
+                             {
+                year: 1980.9,
+                source: "Pan Am",
+                target: ["Braniff"]
+            },
+                             {
+                year: 1980,
+                source: "Pan Am",
+                target: ["National"]
+            },
+                             {
+                year: 1986,
+                source: "TWA",
+                target: ["Ozark"]
+            },
+                             {
+                year: 2001,
+                source: "American",
+                target: ["TWA"]
+            },
+                             {
+                year: 1952,
+                source: "Braniff",
+                target: ["Mid-Continent"]
+            },
+                             {
+                year: 2016,
+                source: "Alaska",
+                target: ["Virgin America"]
+            },
+             {
+                 year: 2011,
+                 source: "Southwest",
+                 target: ["AirTran"]
+             },
+             {
+                 year: 1997,
+                 source: "AirTran",
+                 target: ["ValuJet"]  // ValuJet acquired the original AirTran and adopted its name.
+             },
+             {
+                 year: 1992,
+                 source: "Spirit",
+                 target: ["Charter One"],
+                 note: "Charter One rebranded as Spirit."
+             },
+             {
+                 year: 1982,
+                 source: "Continental",
+                 target: ["Texas International"]
+             },
+             {
+                 year: 1987,
+                 source: "Continental",
+                 target: ["People Express", "New York Air", "Frontier (Old)"]
+             },
+             {
+                 year: 1934,
+                 source: "Alaska",
+                 target: ["McGee", "Star Air"],
+                 note: "Alaska formed fom McGee and Star Air."
+             },
+             {
+                 year: 2010,
+                 source: "Frontier",
+                 target: ["Midwest"],
+             },
+            ];
+                             
+             const foundations = [
+                                  { year: 1924, airline: "Delta" },
+                                  { year: 1926, airline: "American" },
+                                  { year: 1931, airline: "United" },
+                                  { year: 1926, airline: "Northwest" },
+                                  { year: 1949, airline: "C&S" },
+                                  { year: 1931, airline: "Northeast" },
+                                  { year: 1967, airline: "Southwest" },
+                                  { year: 1945, airline: "Western" },
+                                  { year: 1944, airline: "Republic" },
+                                  { year: 1939, airline: "Piedmont" },
+                                  { year: 1949, airline: "PSA" },
+                                  { year: 1981, airline: "America West" },
+                                  { year: 1937, airline: "US Airways" },
+                                  { year: 1937, airline: "Continental" },
+                                  { year: 1927, airline: "Pan Am" },
+                                  { year: 1930, airline: "TWA" },
+                                  { year: 1928.9, airline: "Braniff" },
+                                  { year: 1934, airline: "National" },
+                                  { year: 1950, airline: "Ozark" },
+                                  { year: 1928, airline: "Mid-Continent" },
+                                  { year: 1929, airline: "Hawaiian" },
+                                  { year: 1934, airline: "Alaska" },
+                                  { year: 2004, airline: "Virgin America" },
+                                  { year: 1997, airline: "Allegiant" },
+                                  { year: 1994, airline: "Frontier" },
+                                  { year: 1998, airline: "JetBlue" },
+                                  { year: 1993, airline: "ValuJet" },  // Initially founded as ValuJet.
+                                  { year: 1997, airline: "AirTran" },
+                                  { year: 1983, airline: "Charter One" },  // Initially founded as Charter One.
+                                  { year: 1992, airline: "Spirit" }, // Rebranded as Spirit Airlines.
+                                  { year: 1926, airline: "Varney" },  // Initially founded as Varney Speed Lines.
+                                  { year: 1940, airline: "Texas International"},
+                                  { year: 1981, airline: "People Express"},
+                                  { year: 1980, airline: "New York Air"},
+                                  { year: 1950, airline: "Frontier (Old)"},
+                                  { year: 1932.8, airline: "McGee"},
+                                  { year: 1932, airline: "Star Air"},
+                                  { year: 1983, airline: "Midwest"},
+
+                                  ];
+                                  
+              const cessations = [
+                                  { year: 1991, airline: "Pan Am" },
+                                  { year: 1937, airline: "Varney" }
+                                  ];
+                                                                      
+            const partialMergers = [
+                                  {
+                                      year: 1991,
+                                      source: "Delta",
+                                      target: "Pan Am",
+                                      note: "Delta purchased Pan Am's European routes."
+                                  },
+                                    {
+                                        year: 1985,
+                                        source: "United",
+                                        target: "Pan Am",
+                                        note: "United purchased Pan Am's Pacific operations."
+                                    },
+                                    {
+                                        year: 1931,
+                                        source: "United",
+                                        target: "Varney",
+                                        note: "Varney Airlines Lines rebranded as United."
+                                    },
+                                    {
+                                        year: 1937,
+                                        source: "Continental",
+                                        target: "Varney",
+                                        note: "Restarted Varney Speed Lines rebranded as Continental."
+                                    },
+                                  ];
+                                  
+              const brandingColors = {
+                  "Delta": "#C8102E",
+                  "American": "#002F6C",
+                  "United": "#0057B8",
+                  "Northwest": "#D71920",
+                  "C&S": "#3A3A38",
+                  "Northeast": "#FF7F00",
+                  "Southwest": "#FFB500",
+                  "Western": "#FDB813",
+                  "Republic": "#7C878E",
+                  "Piedmont": "#00AEEF",
+                  "PSA": "#FAA61A",
+                  "America West": "#E81C1D",
+                  "US Airways": "#003B7C",
+                  "Continental": "#E41B23",
+                  "Pan Am": "#1F2C5C",
+                  "TWA": "#E4002B",
+                  "Braniff": "#FD5A1E",
+                  "National": "#F4C542",
+                  "Ozark": "#59B3A2",
+                  "Mid-Continent": "#003366",
+                  "Hawaiian": "#4C91C0", // This is an approximation, as actual branding colors might vary slightly.
+                  "Alaska": "#0074E4", // This is an approximation, as actual branding colors might vary slightly.
+                  "Virgin America": "#D7168F", // This is also an approximation.
+                  "Allegiant": "#F80000",
+                  "Frontier": "#00AEEF",
+                  "JetBlue": "#003366",
+                  "ValuJet": "#F8951D",         // Representative color for ValuJet.
+                  "AirTran": "#0057B8",           // AirTran's primary blue branding color.
+                  "Charter One": "#666666",         // Representative color for Charter One (a generic placeholder as specific branding color is not widely recognized).
+                  "Spirit": "#FCF403",     // Spirit's primary yellow branding color.
+                  "Varney": "#666666",  // Representative color for Varney Speed Lines (a generic placeholder as specific branding color is not widely recognized).
+                  "Texas International": "#B8B8B8", // Representative color for Texas International.
+                  "People Express": "#FF9B37",      // Representative color for People Express.
+                  "New York Air": "#D62226",        // Representative color for New York Air.
+                  "Frontier (Old)": "#000000",
+                  "McGee": "#000000",
+                  "Star Air": "#000000",
+                  "Midwest": "#000000",
+              };
+            
+            const airlines = [
+                              "Virgin America", "Alaska", "McGee", "Star Air",
+                              //"Allegiant",
+                              "Ozark", "TWA",
+                              "American", "US Airways", "Piedmont", "PSA", "America West",
+                              " ",
+                              "Hawaiian",
+                              "  ",
+                              "ValuJet", "AirTran", "Southwest",
+                              "   ",
+                              "Republic", "Northwest", "Western", "Northeast", "C&S",
+                              "Delta",
+                              "    ",
+                              "Mid-Continent",
+                              "JetBlue",
+                              "Braniff",
+                              
+                              "Pan Am", "National",
+                              
+                              "Frontier", "Midwest",
+                              "     ",
+                              "United",
+                              "Varney",
+                              "Continental",
+                              "Texas International",
+                              "New York Air", "Frontier (Old)", "People Express",
+                              
+                              " ",
+                                
+                              "  ",
+
+                              "    ",
+                              "Charter One", "Spirit",
+                              ];
+                              
+                              const svg = d3.select("svg");
+                              const tooltip = d3.select(".tooltip");
+                              
+                              const width = +svg.attr("width");
+                              const height = +svg.attr("height");
+                              
+                              // Get SVG bounding box
+                              const svgBB = svg.node().getBoundingClientRect();
+                              
+                              const yScale = d3.scaleLinear().domain([1920, 2023]).range([50, height - 50]);
+                              
+                              const xScale = d3.scalePoint().domain(airlines).range([125, width - 50 - 50]).padding(0.2);
+                              
+                              airlines.forEach(airline => {
+                                  let startY = 1920;
+                                  let intStartY = 1920;
+                                  let endY = 2023;
+                                  let intEndY = 1920;
+                                  
+                                  const foundation = foundations.find(f => f.airline === airline);
+                                  if (foundation) {
+                                      startY = foundation.year;
+                                  }
+                                  
+                                  const end = mergers.find(m => m.target.includes(airline));
+                                  if (end) {
+                                      endY = end.year;
+                                  }
+                                  
+                                  const cessation = cessations.find(c => c.airline === airline);
+                                  if (cessation) {
+                                      endY = cessation.year;
+                                  }
+                                  
+                                  intStartY = Math.floor(startY)
+                                  intEndY = Math.floor(endY)
+                                  
+                                  svg.append("line")
+                                  .attr("class", "line")
+                                  .attr("x1", xScale(airline))
+                                  .attr("y1", yScale(startY))
+                                  .attr("x2", xScale(airline))
+                                  .attr("y2", yScale(endY))
+                                  .attr("stroke", brandingColors[airline]) // Set line color based on airline branding
+                                  .on("mouseover", (event) => {
+                                      tooltip.transition().duration(200).style("opacity", 1);
+                                      tooltip.html(airline.replace('\n', ' '))
+                                      /*
+                                      .style("left", (event.pageX + 10) + "px")
+                                      .style("top", (event.pageY - 15) + "px");
+                                       */
+                                      .style("left", svgBB.left + event.clientX + 10 + "px")
+                                      .style("top", svgBB.top + event.clientY - 15 + "px");
+                                  })
+                                  .on("mouseout", () => {
+                                      tooltip.transition().duration(200).style("opacity", 0);
+                                  });
+                                  
+                                  if (foundation) {
+                                      svg.append("circle")
+                                      .attr("class", "circle")
+                                      .attr("cx", xScale(airline))
+                                      .attr("cy", yScale(startY))
+                                      .attr("r", 5)
+                                      .attr("fill", brandingColors[airline]) // Set circle fill color based on airline branding
+                                      .on("mouseover", (event) => {
+                                          tooltip.transition().duration(200).style("opacity", 1);
+                                          tooltip.html(`${airline.replace('\n', ' ')} founded in ${intStartY}`)
+                                          /*
+                                          .style("left", (event.pageX + 10) + "px")
+                                          .style("top", (event.pageY - 15) + "px");
+                                           */
+                                          .style("left", svgBB.left + event.clientX + 10 + "px")
+                                          .style("top", svgBB.top + event.clientY - 15 + "px");
+                                      })
+                                      .on("mouseout", () => {
+                                          tooltip.transition().duration(200).style("opacity", 0);
+                                      });
+                                      
+                                      // Display airline name above the circle
+                                      svg.append("text")
+                                      .attr("class", "label")
+                                      .attr("x", xScale(airline))
+                                      .attr("y", yScale(startY) - 15) // Subtracting 15 to position it above the circle
+                                      .text(airline)
+                                      .attr("alignment-baseline", "middle")
+                                      .attr("text-anchor", "middle");
+                                      
+                                      
+                                  }
+                              });
+            
+            mergers.forEach(merge => {
+                const sourceX = xScale(merge.source);
+                const targetX = xScale(merge.target[0]);
+                const mergeY = yScale(merge.year);
+                const intMergeYear = Math.floor(merge.year);
+                
+                let tooltipContent = `${merge.source} merged with `;
+                tooltipContent += merge.target.join(" and ");
+                tooltipContent += ` in ${intMergeYear}`;
+                if (merge.note) {
+                    tooltipContent += `<br/>${merge.note}`;
+                }
+                
+                const lineGenerator = d3.line().curve(d3.curveBasis);
+                
+                merge.target.forEach(targetAirline => {
+                    const targetX = xScale(targetAirline);
+                    const pathData = lineGenerator([
+                                                    [targetX, mergeY],
+                                                    [(sourceX + targetX) / 2, mergeY],
+                                                    [sourceX, mergeY]
+                                                    ]);
+                                                    
+                                                    svg.append("path")
+                                                    .attr("d", pathData)
+                                                    .attr("stroke", brandingColors[targetAirline])
+                                                    .attr("stroke-width", 2)
+                                                    .on("mouseover", (event) => {
+                                                        tooltip.transition().duration(200).style("opacity", 1);
+                                                        tooltip.html(tooltipContent)
+                                                        /*
+                                                        .style("left", (event.pageX + 10) + "px")
+                                                        .style("top", (event.pageY - 15) + "px");
+                                                         */
+                                                        .style("left", svgBB.left + event.clientX + 10 + "px")
+                                                        .style("top", svgBB.top + event.clientY - 15 + "px");
+                                                    })
+                                                    .on("mouseout", () => {
+                                                        tooltip.transition().duration(200).style("opacity", 0);
+                                                    });
+                });
+                
+                svg.append("circle")
+                .attr("class", "circle")
+                .attr("cx", sourceX)
+                .attr("cy", mergeY)
+                .attr("r", 5)
+                .attr("fill", brandingColors[merge.source])
+                .on("mouseover", (event) => {
+                    tooltip.transition().duration(200).style("opacity", 1);
+                    tooltip.html(tooltipContent)
+                    /*
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 15) + "px");
+                     */
+                    .style("left", svgBB.left + event.clientX + 10 + "px")
+                    .style("top", svgBB.top + event.clientY - 15 + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.transition().duration(200).style("opacity", 0);
+                });
+            });
+            
+            d3.range(1920, 2021, 5).forEach(year => {
+                svg.append("text")
+                .attr("class", "label")
+                .attr("x", 50)
+                .attr("y", yScale(year))
+                .text(year)
+                .attr("alignment-baseline", "middle");
+                svg.append("text")
+                .attr("class", "label")
+                .attr("x", width-50)
+                .attr("y", yScale(year))
+                .text(year)
+                .attr("alignment-baseline", "middle");
+            });
+            
+            
+            
+            partialMergers.forEach(partial => {
+                const sourceX = xScale(partial.source);
+                const targetX = xScale(partial.target);
+                const partialY = yScale(partial.year);
+                
+                let tooltipContent = `${partial.source} partially acquired/merged with ${partial.target} in ${partial.year}`;
+                if (partial.note) {
+                    tooltipContent += `<br/>${partial.note}`;
+                }
+                
+                const lineGenerator = d3.line().curve(d3.curveBasis);
+                
+                const pathData = lineGenerator([
+                                                [targetX, partialY],
+                                                [(sourceX + targetX) / 2, partialY],
+                                                [sourceX, partialY]
+                                                ]);
+                                                
+                                                svg.append("path")
+                                                .attr("d", pathData)
+                                                .attr("stroke-dasharray", "5,5")
+                                                .attr("stroke", brandingColors[partial.target])
+                                                .attr("stroke-width", 2)
+                                                .on("mouseover", (event) => {
+                                                    tooltip.transition().duration(200).style("opacity", 1);
+                                                    tooltip.html(tooltipContent)
+                                                    /*
+                                                    .style("left", (event.pageX + 10) + "px")
+                                                    .style("top", (event.pageY - 15) + "px");
+                                                     */
+                                                    .style("left", svgBB.left + event.clientX + 10 + "px")
+                                                    .style("top", svgBB.top + event.clientY - 15 + "px");
+                                                })
+                                                .on("mouseout", () => {
+                                                    tooltip.transition().duration(200).style("opacity", 0);
+                                                });
+                                                
+                                                [sourceX, targetX].forEach(x => {
+                                                    svg.append("circle")
+                                                    .attr("class", "circle")
+                                                    .attr("cx", x)
+                                                    .attr("cy", partialY)
+                                                    .attr("r", 5)
+                                                    .attr("fill", brandingColors[partial.target])
+                                                    .on("mouseover", (event) => {
+                                                        tooltip.transition().duration(200).style("opacity", 1);
+                                                        tooltip.html(tooltipContent)
+                                                        /*
+                                                        .style("left", (event.pageX + 10) + "px")
+                                                        .style("top", (event.pageY - 15) + "px");
+                                                         */
+                                                        .style("left", svgBB.left + event.clientX + 10 + "px")
+                                                        .style("top", svgBB.top + event.clientY - 15 + "px");
+                                                    })
+                                                    .on("mouseout", () => {
+                                                        tooltip.transition().duration(200).style("opacity", 0);
+                                                    });
+                                                });
+            });
+            
+            
+            cessations.forEach(cessation => {
+                const x = xScale(cessation.airline);
+                const y = yScale(cessation.year);
+                svg.append("circle")
+                .attr("class", "circle")
+                .attr("cx", x)
+                .attr("cy", y)
+                .attr("r", 5)
+                .attr("fill", brandingColors[cessation.airline])
+                .on("mouseover", (event) => {
+                    tooltip.transition().duration(200).style("opacity", 1);
+                    tooltip.html(`${cessation.airline.replace('\n', ' ')} ceased operations in ${cessation.year}`)
+                    /*
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 15) + "px");
+                     */
+                    .style("left", svgBB.left + event.clientX + 10 + "px")
+                    .style("top", svgBB.top + event.clientY - 15 + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.transition().duration(200).style("opacity", 0);
+                });
+            });
+            
+            
+            
+            airlines.forEach(airline => {
+                const x = xScale(airline);
+                const topY = 30;
+                const bottomY = height - 30;
+                
+                if (!mergers.find(m => m.target.includes(airline)) && !cessations.find(c => c.airline === airline)) {
+                    svg.append("text")
+                    .attr("class", "label")
+                    .attr("x", x)
+                    .attr("y", bottomY)
+                    .text(airline)
+                    .attr("alignment-baseline", "middle")
+                    .attr("text-anchor", "middle");
+                }
+            });
+            
+        </script>
+    </body>
+    
+</html>

@@ -90,11 +90,6 @@
                 note: "US Airways management team retained most leadership positions."
             },
                              {
-                year: 1980.9,
-                source: "Pan Am",
-                target: ["Braniff"]
-            },
-                             {
                 year: 1980,
                 source: "Pan Am",
                 target: ["National"]
@@ -148,7 +143,7 @@
              {
                  year: 1934,
                  source: "Alaska",
-                 target: ["McGee", "Star Air"],
+                 target: ["Star Air", "McGee"],
                  note: "Alaska formed fom McGee and Star Air."
              },
              {
@@ -156,11 +151,40 @@
                  source: "Frontier",
                  target: ["Midwest"],
              },
+             {
+                 year: 1929,
+                 source: "Avco",
+                 target: ["Robertson", "Colonial"],
+                 note: "Robertson and Colonial merged in 1929 into holding company Avco (The Aviation Corporation)."
+             },
+             {
+                 year: 1930.5,
+                 source: "American",
+                 target: ["Avco"],
+                 note: "Avco rebranded as American. Union of >80 small airlines."
+             },
+             {
+                 year: 1930.5,
+                 source: "TWA",
+                 target: ["Maddux", "TAT", "Standard",  "WAE", "PAIC"],
+                 note: "Forced merger of Transcontinental Air Transport (TAT), Western Air Express (WAE), Maddux, Standard, and Pittsburgh Aviation Industries Corporation (PAIC) to form Transcontinental & Western Air (T&WA)."
+             },
+             {
+                 year: 1928,
+                 source: "Delta",
+                 target: ["Huff Daland Dusters"],
+                 note: "Delta formed from the acquisition and rebranding of Huff Daland Dusters' assets."
+             },
+             {
+                 year: 1931,
+                 source: "United",
+                 target: ["UATC"],
+             },
             ];
                              
              const foundations = [
-                                  { year: 1924, airline: "Delta" },
-                                  { year: 1926, airline: "American" },
+                                  { year: 1928, airline: "Delta" },
+                                  { year: 1930.5, airline: "American" },
                                   { year: 1931, airline: "United" },
                                   { year: 1926, airline: "Northwest" },
                                   { year: 1949, airline: "C&S" },
@@ -174,11 +198,11 @@
                                   { year: 1937, airline: "US Airways" },
                                   { year: 1937, airline: "Continental" },
                                   { year: 1927, airline: "Pan Am" },
-                                  { year: 1930, airline: "TWA" },
-                                  { year: 1928.9, airline: "Braniff" },
+                                  { year: 1930.5, airline: "TWA" },
+                                  { year: 1930, airline: "Braniff" }, //several versions of Braniff
                                   { year: 1934, airline: "National" },
                                   { year: 1950, airline: "Ozark" },
-                                  { year: 1928, airline: "Mid-Continent" },
+                                  { year: 1938, airline: "Mid-Continent" },
                                   { year: 1929, airline: "Hawaiian" },
                                   { year: 1934, airline: "Alaska" },
                                   { year: 2004, airline: "Virgin America" },
@@ -197,12 +221,23 @@
                                   { year: 1932.8, airline: "McGee"},
                                   { year: 1932, airline: "Star Air"},
                                   { year: 1983, airline: "Midwest"},
-
+                                  { year: 1921, airline: "Robertson"},
+                                  { year: 1926, airline: "Colonial"},
+                                  { year: 1929, airline: "Avco"},
+                                  { year: 1928.5, airline: "TAT"},
+                                  { year: 1925, airline: "WAE"},
+                                  { year: 1927, airline: "Maddux"},
+                                  { year: 1927, airline: "Standard"},
+                                  { year: 1929, airline: "PAIC"},
+                                  { year: 1925, airline: "Huff Daland Dusters"},
+                                  { year: 1928, airline: "Hanford"},
+                                  { year: 1929, airline: "UATC"}
                                   ];
                                   
               const cessations = [
                                   { year: 1991, airline: "Pan Am" },
-                                  { year: 1937, airline: "Varney" }
+                                  { year: 1937, airline: "Varney" },
+                                  { year: 1982, airline: "Braniff" },
                                   ];
                                                                       
             const partialMergers = [
@@ -219,10 +254,10 @@
                                         note: "United purchased Pan Am's Pacific operations."
                                     },
                                     {
-                                        year: 1931,
-                                        source: "United",
+                                        year: 1930,
+                                        source: "UATC",
                                         target: "Varney",
-                                        note: "Varney Airlines Lines rebranded as United."
+                                        note: "Varney Airlines Lines acquired by UATC."
                                     },
                                     {
                                         year: 1937,
@@ -269,43 +304,60 @@
                   "New York Air": "#D62226",        // Representative color for New York Air.
                   "Frontier (Old)": "#000000",
                   "McGee": "#000000",
-                  "Star Air": "#000000",
+                  "Star Air": "#152f95",
                   "Midwest": "#000000",
+                  "Robertson": "#418CA4",
+                  "Colonial": "#000000",
+                  "Avco": "#000000",
+                  "TAT": "#00009d",
+                  "WAE": "#a43223",
+                  "Maddux": "#c64238",
+                  "Standard": "#d1b769",
+                  "PAIC": "#000000",
+                  "Huff Daland Dusters": "#000000",
+                  "UATC": "#000000"
               };
             
             const airlines = [
-                              "Virgin America", "Alaska", "McGee", "Star Air",
+                              "Virgin America", "Alaska",
                               //"Allegiant",
-                              "Ozark", "TWA",
+                              "Maddux",
+                              "McGee",
+                                "TAT",
+                              "Star Air",
+                                "Standard",
+                              
+                              "TWA", "PAIC", "WAE",
+                              "Ozark",
+                              "Robertson", "Avco", "Colonial",
                               "American", "US Airways", "Piedmont", "PSA", "America West",
                               " ",
                               "Hawaiian",
                               "  ",
-                              "ValuJet", "AirTran", "Southwest",
+                              "ValuJet", "AirTran",
                               "   ",
-                              "Republic", "Northwest", "Western", "Northeast", "C&S",
-                              "Delta",
+                              "Southwest",
                               "    ",
+                              "Republic", "Northwest", "Western", "Northeast", "C&S",
+                              "Delta", "Huff Daland Dusters",
+                              "     ",
                               "Mid-Continent",
                               "JetBlue",
                               "Braniff",
-                              
+                              "      ",
                               "Pan Am", "National",
-                              
                               "Frontier", "Midwest",
-                              "     ",
+                              "        ",
                               "United",
+                              "People Express",
+                              "UATC",
+                              "         ",
                               "Varney",
+                              "New York Air",
                               "Continental",
                               "Texas International",
-                              "New York Air", "Frontier (Old)", "People Express",
-                              
-                              " ",
-                                
-                              "  ",
-
-                              "    ",
-                              "Charter One", "Spirit",
+                              "Frontier (Old)",
+                              "Spirit", "Charter One",
                               ];
                               
                               const svg = d3.select("svg");
@@ -410,7 +462,7 @@
                 tooltipContent += merge.target.join(" and ");
                 tooltipContent += ` in ${intMergeYear}`;
                 if (merge.note) {
-                    tooltipContent += `<br/>${merge.note}`;
+                    tooltipContent = `${merge.note}`;
                 }
                 
                 const lineGenerator = d3.line().curve(d3.curveBasis);
@@ -487,7 +539,7 @@
                 
                 let tooltipContent = `${partial.source} partially acquired/merged with ${partial.target} in ${partial.year}`;
                 if (partial.note) {
-                    tooltipContent += `<br/>${partial.note}`;
+                    tooltipContent = `${partial.note}`;
                 }
                 
                 const lineGenerator = d3.line().curve(d3.curveBasis);
